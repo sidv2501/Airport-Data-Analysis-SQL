@@ -48,41 +48,41 @@ group by 1
 order by avg_passengers desc;
 
 WITH outgoing_passengers AS (
-    SELECT
-        ORIGIN_AIRPORT_ID,
-        AVG(PASSENGERS) AS avg_passengers
-    FROM airport_project_data
-    GROUP BY ORIGIN_AIRPORT_ID
+SELECT
+ORIGIN_AIRPORT_ID,
+AVG(PASSENGERS) AS avg_passengers
+FROM airport_project_data
+GROUP BY ORIGIN_AIRPORT_ID
 ),
 
 incoming_passengers AS (
-    SELECT
-        DEST_AIRPORT_ID,
-        AVG(PASSENGERS) AS avg_passengers
-    FROM airport_project_data
-    GROUP BY DEST_AIRPORT_ID
+SELECT
+DEST_AIRPORT_ID,
+AVG(PASSENGERS) AS avg_passengers
+FROM airport_project_data
+GROUP BY DEST_AIRPORT_ID
 ),
 
 all_airport AS (
-    SELECT 
-    DISTINCT ORIGIN_AIRPORT_ID AS airport_id
-    FROM airport_project_data
+SELECT 
+DISTINCT ORIGIN_AIRPORT_ID AS airport_id
+FROM airport_project_data
 
-    UNION
+UNION
 
-    SELECT DISTINCT DEST_AIRPORT_ID AS airport_id
-    FROM airport_project_data
+SELECT DISTINCT DEST_AIRPORT_ID AS airport_id
+FROM airport_project_data
 )
 
 SELECT
-    aa.airport_id,
-    COALESCE(op.avg_passengers,0) + COALESCE(ip.avg_passengers,0)
-        AS total_passengers_travelling
+aa.airport_id,
+COALESCE(op.avg_passengers,0) + COALESCE(ip.avg_passengers,0)
+AS total_passengers_travelling
 FROM all_airport aa
 LEFT JOIN outgoing_passengers op
-    ON aa.airport_id = op.ORIGIN_AIRPORT_ID
+ON aa.airport_id = op.ORIGIN_AIRPORT_ID
 LEFT JOIN incoming_passengers ip
-    ON aa.airport_id = ip.DEST_AIRPORT_ID
+ON aa.airport_id = ip.DEST_AIRPORT_ID
 ORDER BY total_passengers_travelling DESC;
 
 #5. Assess flight frequency and identify high traffic corridors.
@@ -148,15 +148,15 @@ DEST_CITY_NAME as city_name
 from airport_project_data),
 
 passenger_traffic AS (
-    SELECT
-        SUBSTRING_INDEX(aa.city_name, ',', 1) AS city_name,
-        COALESCE(op.tot_passengers,0) +
-        COALESCE(ip.tot_passengers,0) AS total_passenger_travelling
-    FROM all_airport aa
-    LEFT JOIN outgoing_passengers op
-        ON aa.airport_id = op.ORIGIN_AIRPORT_ID
-    LEFT JOIN incoming_passengers ip
-        ON aa.airport_id = ip.DEST_AIRPORT_ID
+SELECT
+SUBSTRING_INDEX(aa.city_name, ',', 1) AS city_name,
+COALESCE(op.tot_passengers,0) +
+COALESCE(ip.tot_passengers,0) AS total_passenger_travelling
+FROM all_airport aa
+LEFT JOIN outgoing_passengers op
+ON aa.airport_id = op.ORIGIN_AIRPORT_ID
+LEFT JOIN incoming_passengers ip
+ON aa.airport_id = ip.DEST_AIRPORT_ID
 )
 
 select cp.city_name, cp.population, pt.total_passenger_travelling
